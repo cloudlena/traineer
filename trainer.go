@@ -98,7 +98,7 @@ func (t Trainer) GetPunished(val float64) (Punishment, error) {
 	return p, nil
 }
 
-// GetReward treats a user with a reward.
+// Reward treats a user with a reward.
 func (t *Trainer) Reward(val float64) (Reward, error) {
 	if len(t.Rewards) == 0 {
 		return Reward{}, errTrainerNoRewards
