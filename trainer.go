@@ -41,13 +41,7 @@ func (t Trainer) Mood() float64 {
 
 // ConfessTo confesses something to the trainer.
 func (t *Trainer) ConfessTo(confessionID string) error {
-	var found bool
-	for _, c := range t.Confessions {
-		if confessionID == c {
-			found = true
-		}
-	}
-	if !found {
+	if !sliceContains(t.Confessions, confessionID) {
 		return errors.Wrap(errNotFound, "trainer doesn't know confession")
 	}
 
@@ -63,26 +57,20 @@ func (t *Trainer) ConfessTo(confessionID string) error {
 
 // AskPermission asks the trainer for permission to do something.
 func (t Trainer) AskPermission(permissionID string) (bool, error) {
-	var found bool
-	for _, p := range t.Permissions {
-		if permissionID == p {
-			found = true
-		}
-	}
-	if !found {
+	if !sliceContains(t.Permissions, permissionID) {
 		return false, errors.Wrap(errNotFound, "trainer doesn't know permission")
 	}
 
 	p, err := GetPermission(permissionID)
 	if err != nil {
-		errors.Wrap(err, "error getting permission")
+		return false, errors.Wrap(err, "error getting permission")
 	}
 
-	if t.mood >= p.CertainMood {
-		return true, nil
+	if t.mood < p.MinMood {
+		return false, nil
 	}
 
-	if t.mood >= p.MinMood {
+	if t.mood < p.CertainMood {
 		pb := (t.mood - p.MinMood) / (p.CertainMood - p.MinMood)
 
 		rand.Seed(time.Now().UnixNano())
@@ -93,7 +81,7 @@ func (t Trainer) AskPermission(permissionID string) (bool, error) {
 		}
 	}
 
-	return false, nil
+	return true, nil
 }
 
 // GetPunished imposes a punishment on the user which they must fulfill.
@@ -110,7 +98,7 @@ func (t Trainer) GetPunished(val float64) (Punishment, error) {
 	return p, nil
 }
 
-// Reward rewards a user but may lower the trainer's mood.
+// GetReward treats a user with a reward.
 func (t *Trainer) Reward(val float64) (Reward, error) {
 	if len(t.Rewards) == 0 {
 		return Reward{}, errTrainerNoRewards
