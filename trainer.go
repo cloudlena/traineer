@@ -10,7 +10,7 @@ import (
 
 // Trainer is a personal trainer or a coach.
 type Trainer struct {
-	mainObject
+	MainObject
 	Active               bool
 	RewardMultiplier     float64
 	PunishmentMultiplier float64
@@ -47,7 +47,7 @@ func (t *Trainer) ConfessTo(confessionID string) error {
 
 	c, err := GetConfession(confessionID)
 	if err != nil {
-		errors.Wrap(err, "error getting confession")
+		return errors.Wrap(err, "error getting confession")
 	}
 
 	t.modifyMood(c.Value)
@@ -92,7 +92,7 @@ func (t Trainer) GetPunished(val float64) (Punishment, error) {
 
 	p, err := GetPunishment(t.Punishments[0])
 	if err != nil {
-		errors.Wrap(err, "error getting punishment")
+		return Punishment{}, errors.Wrap(err, "error getting punishment")
 	}
 
 	return p, nil
@@ -104,11 +104,11 @@ func (t *Trainer) Reward(val float64) (Reward, error) {
 		return Reward{}, errTrainerNoRewards
 	}
 
-	var rewards []Reward
+	rewards := make([]Reward, 0, len(t.Rewards))
 	for _, r := range t.Rewards {
 		rew, err := GetReward(r)
 		if err != nil {
-			errors.Wrap(err, "error getting reward")
+			return Reward{}, errors.Wrap(err, "error getting reward")
 		}
 
 		rewards = append(rewards, rew)
@@ -153,10 +153,10 @@ func (t *Trainer) modifyMood(val float64) {
 }
 
 // triggerScenario triggers a random scenario of the trainer.
-func (t *Trainer) triggerScenario() {
+func (t *Trainer) triggerScenario() error {
 	s, err := GetScenario(t.Scenarios[0])
 	if err != nil {
-		errors.Wrap(err, "error getting scenario")
+		return errors.Wrap(err, "error getting scenario")
 	}
 
 	for _, st := range s.Steps {
@@ -165,4 +165,6 @@ func (t *Trainer) triggerScenario() {
 	}
 
 	t.modifyMood(s.Reward)
+
+	return nil
 }

@@ -2,13 +2,11 @@ package traineer
 
 import (
 	"time"
-
-	"gopkg.in/mgo.v2/bson"
 )
 
 // Scenario is a happening triggered by a trainer which may consist of multiple steps.
 type Scenario struct {
-	mainObject
+	MainObject
 	MinMood    float64
 	MaxMood    float64
 	Commonness float64
@@ -35,7 +33,7 @@ type ScenarioStep struct {
 
 // ScenarioStepOption leads to another step or terminates a scenario.
 type ScenarioStepOption struct {
-	ID       bson.ObjectId
+	ID       string
 	Label    string
 	NextStep string
 }

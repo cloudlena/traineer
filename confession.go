@@ -2,7 +2,7 @@ package traineer
 
 // Confession is something a user confesses to a trainer.
 type Confession struct {
-	mainObject
+	MainObject
 	Value float64
 }
 

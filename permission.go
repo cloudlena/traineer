@@ -6,7 +6,7 @@ import (
 
 // Permission is something a user needs to ask a trainer for permission for.
 type Permission struct {
-	mainObject
+	MainObject
 	MinMood     float64
 	CertainMood float64
 	MinInterval time.Duration

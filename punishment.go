@@ -4,7 +4,7 @@ import "time"
 
 // Punishment is something a trainer uses to punish a user.
 type Punishment struct {
-	mainObject
+	MainObject
 	MaxMood   float64
 	TimeLimit time.Duration
 	Value     float64
