@@ -3,28 +3,32 @@ package traineer
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestTrainerModifyMood(t *testing.T) {
-	assert := assert.New(t)
+	t.Parallel()
 
-	cases := map[string]struct {
+	cases := []struct {
+		it           string
 		trainer      Trainer
 		modification float64
 		expectedMood float64
 	}{
-		"reduces mood": {
+		{
+			it:           "reduces mood",
 			trainer:      Trainer{PunishmentMultiplier: 1},
 			modification: -5,
 			expectedMood: -5,
 		},
-		"reduces mood adjusted": {
+		{
+			it:           "reduces mood adjusted",
 			trainer:      Trainer{PunishmentMultiplier: 0.2},
 			modification: -5,
 			expectedMood: -1,
 		},
-		"doesn't reduce mood below min": {
+		{
+			it: "doesn't reduce mood below min",
 			trainer: Trainer{
 				PunishmentMultiplier: 1,
 				mood:                 TrainerMinMood,
@@ -32,7 +36,8 @@ func TestTrainerModifyMood(t *testing.T) {
 			modification: -5,
 			expectedMood: TrainerMinMood,
 		},
-		"doesn't reduce mood above max": {
+		{
+			it: "doesn't reduce mood above max",
 			trainer: Trainer{
 				PunishmentMultiplier: 1,
 				mood:                 TrainerMaxMood,
@@ -42,11 +47,15 @@ func TestTrainerModifyMood(t *testing.T) {
 		},
 	}
 
-	for tcID, tc := range cases {
-		t.Run(tcID, func(t *testing.T) {
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.it, func(t *testing.T) {
+			t.Parallel()
+			is := is.New(t)
+
 			tc.trainer.modifyMood(tc.modification)
 
-			assert.Equal(tc.expectedMood, tc.trainer.mood, tcID)
+			is.Equal(tc.trainer.mood, tc.expectedMood)
 		})
 	}
 }

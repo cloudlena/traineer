@@ -4,64 +4,67 @@ import (
 	"testing"
 
 	. "github.com/mastertinner/traineer"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestTrainerAskPermission(t *testing.T) {
-	assert := assert.New(t)
+	t.Parallel()
 
-	cases := map[string]struct {
+	cases := []struct {
+		it             string
 		trainer        Trainer
 		permission     Permission
 		expectedResult bool
 	}{
-		"permits if certain": {
+		{
+			it:             "permits if certain",
 			trainer:        Trainer{},
 			permission:     Permission{MinMood: -5, CertainMood: 0},
 			expectedResult: true,
 		},
-		"doesn't permit if mood is below min": {
+		{
+			it:             "doesn't permit if mood is below min",
 			trainer:        Trainer{},
 			permission:     Permission{MinMood: 5, CertainMood: 10},
 			expectedResult: false,
 		},
 	}
 
-	for tcID, tc := range cases {
-		t.Run(tcID, func(t *testing.T) {
-			result := tc.trainer.AskPermission(tc.permission)
-			assert.Equal(tc.expectedResult, result, tcID)
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.it, func(t *testing.T) {
+			t.Parallel()
+			is := is.New(t)
+
+			result, err := tc.trainer.AskPermission("permission-id")
+			is.NoErr(err)
+			is.Equal(result, tc.expectedResult)
 		})
 	}
 }
 
 func TestTrainerReward(t *testing.T) {
-	assert := assert.New(t)
+	t.Parallel()
 
-	cases := map[string]struct {
+	cases := []struct {
+		it                 string
 		trainer            Trainer
 		value              float64
 		expectedRewardName string
 	}{
-		"returns reward": {
+		{
+			it: "returns reward",
 			trainer: Trainer{
-				Rewards: []Reward{
-					{Name: "test-reward"},
-				},
+				Rewards: []string{"test-reward"},
 			},
 			expectedRewardName: "test-reward",
 		},
-		"returns correct reward": {
+		{
+			it: "returns correct reward",
 			trainer: Trainer{
-				Rewards: []Reward{
-					{
-						Name:  "test-reward1",
-						Value: 1,
-					},
-					{
-						Name:  "test-reward5",
-						Value: 5,
-					},
+				Rewards: []string{
+					"test-reward1",
+					"test-reward5",
 				},
 			},
 			value:              5,
@@ -69,12 +72,16 @@ func TestTrainerReward(t *testing.T) {
 		},
 	}
 
-	for tcID, tc := range cases {
-		t.Run(tcID, func(t *testing.T) {
-			result, err := tc.trainer.Reward(tc.value)
-			assert.NoError(err, tcID)
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.it, func(t *testing.T) {
+			t.Parallel()
+			is := is.New(t)
 
-			assert.Equal(tc.expectedRewardName, result.Name, tcID)
+			result, err := tc.trainer.Reward(tc.value)
+			is.NoErr(err)
+
+			is.Equal(result.Name, tc.expectedRewardName)
 		})
 	}
 }

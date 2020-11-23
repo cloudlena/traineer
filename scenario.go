@@ -6,7 +6,7 @@ import (
 
 // Scenario is a happening triggered by a trainer which may consist of multiple steps.
 type Scenario struct {
-	MainObject
+	Entity
 	MinMood    float64
 	MaxMood    float64
 	Commonness float64

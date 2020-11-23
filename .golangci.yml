@@ -1,0 +1,14 @@
+linters:
+  enable-all: true
+  disable:
+    - exhaustivestruct
+    - nlreturn
+    - wsl
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  maligned:
+    suggest-new: true
+  misspell:
+    locale: US

@@ -7,7 +7,7 @@ import (
 
 // Reward is something a trainer uses to reward a user.
 type Reward struct {
-	MainObject
+	Entity
 	MinMood   float64
 	TimeLimit time.Duration
 	Value     float64

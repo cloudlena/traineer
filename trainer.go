@@ -2,15 +2,14 @@ package traineer
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // Trainer is a personal trainer or a coach.
 type Trainer struct {
-	MainObject
+	Entity
 	Active               bool
 	RewardMultiplier     float64
 	PunishmentMultiplier float64
@@ -28,7 +27,10 @@ func (t *Trainer) Init() {
 	t.Active = true
 
 	go func() {
-		t.triggerScenario()
+		err := t.triggerScenario()
+		if err != nil {
+			log.Fatal(fmt.Errorf("error triggering scenario: %w", err))
+		}
 
 		time.Sleep(time.Duration(t.ScenarioRate) * time.Second)
 	}()
@@ -42,12 +44,12 @@ func (t Trainer) Mood() float64 {
 // ConfessTo confesses something to the trainer.
 func (t *Trainer) ConfessTo(confessionID string) error {
 	if !sliceContains(t.Confessions, confessionID) {
-		return errors.Wrap(errNotFound, "trainer doesn't know confession")
+		return fmt.Errorf("trainer doesn't know confession: %w", errNotFound)
 	}
 
 	c, err := GetConfession(confessionID)
 	if err != nil {
-		return errors.Wrap(err, "error getting confession")
+		return fmt.Errorf("error getting confession: %w", err)
 	}
 
 	t.modifyMood(c.Value)
@@ -58,12 +60,12 @@ func (t *Trainer) ConfessTo(confessionID string) error {
 // AskPermission asks the trainer for permission to do something.
 func (t Trainer) AskPermission(permissionID string) (bool, error) {
 	if !sliceContains(t.Permissions, permissionID) {
-		return false, errors.Wrap(errNotFound, "trainer doesn't know permission")
+		return false, fmt.Errorf("trainer doesn't know permission: %w", errNotFound)
 	}
 
 	p, err := GetPermission(permissionID)
 	if err != nil {
-		return false, errors.Wrap(err, "error getting permission")
+		return false, fmt.Errorf("error getting permission: %w", err)
 	}
 
 	if t.mood < p.MinMood {
@@ -92,7 +94,7 @@ func (t Trainer) GetPunished(val float64) (Punishment, error) {
 
 	p, err := GetPunishment(t.Punishments[0])
 	if err != nil {
-		return Punishment{}, errors.Wrap(err, "error getting punishment")
+		return Punishment{}, fmt.Errorf("error getting punishment: %w", err)
 	}
 
 	return p, nil
@@ -108,7 +110,7 @@ func (t *Trainer) Reward(val float64) (Reward, error) {
 	for _, r := range t.Rewards {
 		rew, err := GetReward(r)
 		if err != nil {
-			return Reward{}, errors.Wrap(err, "error getting reward")
+			return Reward{}, fmt.Errorf("error getting reward: %w", err)
 		}
 
 		rewards = append(rewards, rew)
@@ -139,9 +141,9 @@ func (t *Trainer) Reward(val float64) (Reward, error) {
 // modifyMood modifies a trainer's mood adjusted by the multiplier.
 func (t *Trainer) modifyMood(val float64) {
 	if val > 0 {
-		t.mood = t.mood + (val * t.RewardMultiplier)
+		t.mood += val * t.RewardMultiplier
 	} else {
-		t.mood = t.mood + (val * t.PunishmentMultiplier)
+		t.mood += val * t.PunishmentMultiplier
 	}
 
 	if t.mood > TrainerMaxMood {
@@ -156,7 +158,7 @@ func (t *Trainer) modifyMood(val float64) {
 func (t *Trainer) triggerScenario() error {
 	s, err := GetScenario(t.Scenarios[0])
 	if err != nil {
-		return errors.Wrap(err, "error getting scenario")
+		return fmt.Errorf("error getting scenario: %w", err)
 	}
 
 	for _, st := range s.Steps {

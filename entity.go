@@ -1,7 +1,7 @@
 package traineer
 
-// MainObject is a generic object with some metadata attributes.
-type MainObject struct {
+// Entity is a generic object with some metadata attributes.
+type Entity struct {
 	ID          string
 	Name        string
 	Description string
